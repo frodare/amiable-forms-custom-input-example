@@ -6,12 +6,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles.scss";
 
 const Binary = ({ name }) => {
-  const { setValue, value } = useField({ name, emptyValue: 0 });
+  const { setValue, value } = useField({ name, parse: toNum, format });
 
   const setBit = bit => setValue(value | (1 << bit), { touch: true });
   const resetBit = bit => setValue(value & ~(1 << bit), { touch: true });
   const hasBit = bit => (value >> bit) % 2 !== 0;
-
   const update = (bit, value) => (value ? setBit(bit) : resetBit(bit));
 
   return (
@@ -32,21 +31,36 @@ const Binary = ({ name }) => {
   );
 };
 
+const toNum = s => {
+  const num = +s;
+  return num ? num : 0;
+};
+
+const format = n => n || 0;
+
 const NumberInput = ({ name, validators }) => {
-  const { value, setValue } = useField({ name, validators, emptyValue: 0 });
-  return (
-    <Input
-      className="py-3"
-      type="text"
-      name={name}
-      value={value + ""}
-      onChange={ev => {
-        const num = +ev.target.value;
-        if (!num && num !== 0) return;
-        setValue(num, { touch: true });
-      }}
-    />
-  );
+  const { inputProps, value, setValue } = useField({
+    name,
+    validators,
+    parse: toNum,
+    format
+  });
+  const onKeyDown = ev => {
+    console.log("keypress", ev.which);
+    switch (ev.which) {
+      case 38:
+      case 107:
+        ev.preventDefault();
+        return setValue(value + 1);
+      case 40:
+      case 109:
+        ev.preventDefault();
+        return setValue(value - 1);
+      default:
+        return;
+    }
+  };
+  return <Input className="py-3" {...inputProps} onKeyDown={onKeyDown} />;
 };
 
 const TestForm = () => (
@@ -56,7 +70,7 @@ const TestForm = () => (
       Example of a custom input created for amiable-forms used to set a number
       in a binary fashion.
     </p>
-    <Form initialValues={{ binary: 0 }}>
+    <Form>
       <Binary name="binary" />
       <NumberInput name="binary" />
     </Form>
