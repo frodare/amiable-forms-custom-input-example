@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Debug, Form, useField } from "amiable-forms";
-import { Input, Container } from "reactstrap";
+import { Form, useField } from "amiable-forms";
+import { Input, Container, ButtonGroup, Button } from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles.scss";
 
@@ -15,45 +15,50 @@ const Binary = ({ name }) => {
   const update = (bit, value) => (value ? setBit(bit) : resetBit(bit));
 
   return (
-    <div>
-      {new Array(16).fill(undefined).map((_, i) => {
-        const u = ev => update(i, ev.target.checked);
+    <ButtonGroup block className="py-3">
+      {new Array(8).fill(undefined).map((_, i) => {
+        const on = hasBit(i);
         return (
-          <input key={i} type="checkbox" checked={hasBit(i)} onChange={u} />
+          <Button
+            color={on ? "primary" : "light"}
+            onClick={() => update(i, !on)}
+            active={on}
+          >
+            {i}
+          </Button>
         );
       })}
-      {value}
-    </div>
+    </ButtonGroup>
   );
 };
 
 const NumberInput = ({ name, validators }) => {
   const { value, setValue } = useField({ name, validators, emptyValue: 0 });
-
   return (
-    <div>
-      <Input
-        type="text"
-        name={name}
-        value={value + ""}
-        onChange={ev => {
-          const num = +ev.target.value;
-          if (!num && num !== 0) return;
-          setValue(num, { touch: true });
-        }}
-      />
-    </div>
+    <Input
+      className="py-3"
+      type="text"
+      name={name}
+      value={value + ""}
+      onChange={ev => {
+        const num = +ev.target.value;
+        if (!num && num !== 0) return;
+        setValue(num, { touch: true });
+      }}
+    />
   );
 };
 
 const TestForm = () => (
   <Container>
     <h1>amiable-forms</h1>
-    <h2>Custom Input Example</h2>
+    <p>
+      Example of a custom input created for amiable-forms used to set a number
+      in a binary fashion.
+    </p>
     <Form initialValues={{ binary: 0 }}>
-      <NumberInput name="binary" />
       <Binary name="binary" />
-      <Debug />
+      <NumberInput name="binary" />
     </Form>
   </Container>
 );
