@@ -14,11 +14,12 @@ const Binary = ({ name }) => {
   const update = (bit, value) => (value ? setBit(bit) : resetBit(bit));
 
   return (
-    <ButtonGroup block className="py-3">
+    <ButtonGroup className="py-3">
       {new Array(8).fill(undefined).map((_, i) => {
         const on = hasBit(i);
         return (
           <Button
+            key={i}
             color={on ? "primary" : "light"}
             onClick={() => update(i, !on)}
             active={on}
@@ -46,7 +47,6 @@ const NumberInput = ({ name, validators }) => {
     format
   });
   const onKeyDown = ev => {
-    console.log("keypress", ev.which);
     switch (ev.which) {
       case 38:
       case 107:
